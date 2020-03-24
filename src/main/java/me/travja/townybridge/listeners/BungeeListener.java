@@ -81,6 +81,8 @@ public class BungeeListener implements PluginMessageListener {
             UUID tID = UUID.fromString(in.readUTF());
 
             BNationAddTownEvent.received(nID, tID);
+        } else if (event.equalsIgnoreCase("NationCapitalChangeEvent")) {
+            BNationCapitalChangeEvent.received(UUID.fromString(in.readUTF()), UUID.fromString(in.readUTF()));
         } else if (event.equals("NationInviteTownEvent")) {
             String sname = in.readUTF();
             UUID nID = UUID.fromString(in.readUTF());
