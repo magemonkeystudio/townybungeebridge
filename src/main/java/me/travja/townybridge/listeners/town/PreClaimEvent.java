@@ -15,7 +15,7 @@ public class PreClaimEvent implements Listener {
         Town town = event.getTown();
         TownBlock block = event.getTownBlock();
 
-        if (BungeeUtil.rightServer(town) && !block.isOutpost()) {
+        if (!BungeeUtil.rightServer(town) && !block.isOutpost()) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You must be connected to " + BungeeUtil.getHomeServer(town) + " and the claim must be adjacent to current claims.");
         }

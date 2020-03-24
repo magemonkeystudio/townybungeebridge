@@ -108,7 +108,7 @@ public class BungeeListener implements PluginMessageListener {
             UUID capID = UUID.fromString(in.readUTF());
 
 
-            BNewNationEvent.received(name, id, mID, tag, capID);
+            BNewNationEvent.received(name, id, mID, tag, capID, in.readUTF());
         } else if (event.equals("RenameNationEvent")) {
             UUID id = UUID.fromString(in.readUTF());
             String name = in.readUTF();
