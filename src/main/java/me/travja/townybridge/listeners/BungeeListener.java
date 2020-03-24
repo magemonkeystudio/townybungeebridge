@@ -11,6 +11,7 @@ import me.travja.townybridge.listeners.nation.*;
 import me.travja.townybridge.listeners.player.BDeletePlayerEvent;
 import me.travja.townybridge.listeners.player.BRenameResidentEvent;
 import me.travja.townybridge.listeners.town.*;
+import me.travja.townybridge.listeners.towny.BTownyTransactionEvent;
 import me.travja.townybridge.util.BungeeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -115,8 +116,6 @@ public class BungeeListener implements PluginMessageListener {
 
         } else if (event.equals("DeletePlayerEvent")) {
             BDeletePlayerEvent.received(in.readUTF());
-        } else if (event.equals("PlotChangeOwnerEvent")) {
-            //TODO Implement this
         } else if (event.equals("RenameResidentEvent")) {
             String old = in.readUTF();
             String name = in.readUTF();
@@ -155,8 +154,11 @@ public class BungeeListener implements PluginMessageListener {
             BTownRemoveResidentRankEvent.received(UUID.fromString(in.readUTF()), in.readUTF(), in.readUTF());
         } else if (event.equals("TownTagChangeEvent")) {
             BTownTagChangeEvent.received(UUID.fromString(in.readUTF()), in.readUTF());
-        } else if (event.equals("TownTransacionEvent")) {
+        } else if (event.equals("TownTransactionEvent")) {
             BTownTransactionEvent.received(UUID.fromString(in.readUTF()), Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
+        } else if (event.equals("TownyTransactionEvent")) {
+            BTownyTransactionEvent.received(Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
+            //TODO War events
         } else {
             Main.getInstance().getLogger().info("Received unknown event: " + event + ". Please contact Travja!");
         }
