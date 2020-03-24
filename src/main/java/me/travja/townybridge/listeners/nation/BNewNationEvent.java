@@ -54,7 +54,7 @@ public class BNewNationEvent implements Listener {
         String tag = nation.getTag();
         Town capital = nation.getCapital();
 
-        BungeeUtil.sendMessage(event.getEventName(), name, id.toString(), Bukkit.getPlayer(mayor.getName()).getUniqueId().toString(), tag, capital.getUuid().toString());
+        BungeeUtil.sendMessage(event.getEventName(), name, id.toString(), Bukkit.getPlayer(mayor.getName()).getUniqueId().toString(), tag, capital.getUuid().toString(), Main.server);
     }
 
 
@@ -77,7 +77,7 @@ public class BNewNationEvent implements Listener {
         }
     }
 
-    public static void received(String name, UUID id, UUID mID, String tag, UUID capID) {
+    public static void received(String name, UUID id, UUID mID, String tag, UUID capID, String server) {
         try {
             TownyDataSource towny = TownyAPI.getInstance().getDataSource();
 
@@ -87,6 +87,7 @@ public class BNewNationEvent implements Listener {
             nation.setUuid(id);
             nation.setTag(tag);
             nation.setCapital(towny.getTown(capID));
+            nation.addMetaData(new StringDataField("homeserver", server));
             Player player = Bukkit.getPlayer(mID);
             try {
                 Resident mayor = towny.getResident(player == null ? "---" : player.getName());

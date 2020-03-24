@@ -12,6 +12,8 @@ import me.travja.townybridge.listeners.player.BDeletePlayerEvent;
 import me.travja.townybridge.listeners.player.BRenameResidentEvent;
 import me.travja.townybridge.listeners.town.*;
 import me.travja.townybridge.listeners.towny.BTownyTransactionEvent;
+import me.travja.townybridge.listeners.war.BEventWarEndEvent;
+import me.travja.townybridge.listeners.war.BEventWarStartEvent;
 import me.travja.townybridge.util.BungeeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -144,8 +146,8 @@ public class BungeeListener implements PluginMessageListener {
             BTownAddResidentEvent.received(UUID.fromString(in.readUTF()), in.readUTF());
         } else if (event.equals("TownAddResidentRankEvent")) {
             BTownAddResidentRankEvent.received(UUID.fromString(in.readUTF()), in.readUTF(), in.readUTF());
-        } else if (event.equals("TownBlockSettingsChangedEvent")) {
-            //TODO Implement this
+//        } else if (event.equals("TownBlockSettingsChangedEvent")) {
+//            //TODO Implement this -- May not be needed.
         } else if (event.equals("TownInvitePlayerEvent")) {
             BTownInvitePlayerEvent.received(in.readUTF(), UUID.fromString(in.readUTF()), in.readUTF());
         } else if (event.equals("TownRemoveResidentEvent")) {
@@ -158,7 +160,10 @@ public class BungeeListener implements PluginMessageListener {
             BTownTransactionEvent.received(UUID.fromString(in.readUTF()), Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
         } else if (event.equals("TownyTransactionEvent")) {
             BTownyTransactionEvent.received(Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
-            //TODO War events
+        } else if (event.equals("EventWarEndEvent")) {
+            BEventWarEndEvent.received();
+        } else if (event.equals("EventWarStartEvent")) {
+            BEventWarStartEvent.received();
         } else {
             Main.getInstance().getLogger().info("Received unknown event: " + event + ". Please contact Travja!");
         }

@@ -1,25 +1,24 @@
 package me.travja.townybridge.listeners.town;
 
 import com.palmergames.bukkit.towny.event.TownBlockSettingsChangedEvent;
+import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 public class BTownBlockSettingsChangedEvent implements Listener {
 
-    //TODO Determine which info needs to be synced
+    //TODO Determine what info needs to be synced
     @EventHandler
     public void settingChanged(TownBlockSettingsChangedEvent event) {
         TownBlock block = event.getTownBlock();
+        Town town = event.getTown();
+
 //        block.setChanged();
 //        block.isChanged();
 //
 //        block.setLocked();
 //        block.isLocked();
-//
-//        block.addMetaData();
-//        block.removeMetaData();
-//        block.getMetadata();
 //
 //        block.setName();
 //        block.getName();

@@ -3,6 +3,7 @@ package me.travja.townybridge.listeners;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyObject;
 import com.palmergames.bukkit.towny.object.metadata.CustomDataField;
 import me.travja.townybridge.Main;
 import me.travja.townybridge.util.BungeeUtil;
@@ -18,13 +19,17 @@ public class CmdListener implements Listener {
     @EventHandler
     public void cmd(PlayerCommandPreprocessEvent event) {
         ArrayList<String> townAliases = (ArrayList<String>) Bukkit.getPluginCommand("town").getAliases();
+        ArrayList<String> nationAliases = (ArrayList<String>) Bukkit.getPluginCommand("nation").getAliases();
 
         String[] args = event.getMessage().split(" ");
         String cmd = args[0].replace("/", "").toLowerCase();
 
         Main.log.info(cmd);
 
-        if (cmd.equals("town") || townAliases.contains(cmd)) {
+        boolean tCmd = cmd.equals("town") || townAliases.contains(cmd);
+        boolean nCmd = cmd.equals("nation") || nationAliases.contains(cmd);
+
+        if (tCmd || nCmd) {
             Main.log.info("We got a towny command!");
             if (args.length <= 1)
                 return;
@@ -34,14 +39,20 @@ public class CmdListener implements Listener {
                 Main.log.info("Spawn command attempted");
 
                 try {
-                    Town town = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName()).getTown();
-                    if (town == null || rightServer(town)) {
+                    String server = "";
+                    TownyObject obj = null;
+                    if (tCmd)
+                        obj = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName()).getTown();
+                    else if (nCmd)
+                        obj = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName()).getTown().getNation();
+
+                    if (obj == null || BungeeUtil.rightServer(obj)) {
                         Main.log.info("On the right server.");
                         return;
                         //We'll just let Towny handle this.
                     }
 
-                    String server = getHomeServer(town);
+                    server = BungeeUtil.getHomeServer(obj);
 
                     BungeeUtil.connect(event.getPlayer(), server);
                     event.setCancelled(true);
@@ -50,27 +61,5 @@ public class CmdListener implements Listener {
                 }
             }
         }
-    }
-
-    private boolean rightServer(Town town) {
-        String server = getHomeServer(town);
-
-        return server.equals("") || server.equals(Main.server);
-    }
-
-    private String getHomeServer(Town town) {
-        String server = "";
-        Main.log.info("Has meta? " + town.hasMeta());
-        if (!town.hasMeta())
-            return server;
-
-        for (CustomDataField<?> data : town.getMetadata()) {
-            if (data.getKey().equals("homeserver")) {
-                server = (String) data.getValue();
-                break;
-            }
-        }
-        Main.log.info("Home Server: " + server);
-        return server;
     }
 }

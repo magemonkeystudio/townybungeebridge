@@ -8,7 +8,9 @@ import com.palmergames.bukkit.towny.db.TownyDataSource;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownyObject;
 import com.palmergames.bukkit.towny.object.TownyWorld;
+import com.palmergames.bukkit.towny.object.metadata.CustomDataField;
 import me.travja.townybridge.Main;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -120,6 +122,30 @@ public class BungeeUtil {
             TownyWorld world = block.getWorld();
             String worldName = world.getName();
         }
+    }
+
+
+
+    public static boolean rightServer(TownyObject town) {
+        String server = getHomeServer(town);
+
+        return server.equals("") || server.equals(Main.server);
+    }
+
+    public static String getHomeServer(TownyObject town) {
+        String server = "";
+        Main.log.info("Has meta? " + town.hasMeta());
+        if (!town.hasMeta())
+            return server;
+
+        for (CustomDataField<?> data : town.getMetadata()) {
+            if (data.getKey().equals("homeserver")) {
+                server = (String) data.getValue();
+                break;
+            }
+        }
+        Main.log.info("Home Server: " + server);
+        return server;
     }
 
 }

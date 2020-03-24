@@ -59,7 +59,7 @@ public class BNewTownEvent implements Listener {
             return;
         }
 
-        BungeeUtil.sendMessage(event.getEventName(), name, id.toString(), Bukkit.getPlayer(mayor.getName()).getUniqueId().toString(), tag, world);
+        BungeeUtil.sendMessage(event.getEventName(), name, id.toString(), Bukkit.getPlayer(mayor.getName()).getUniqueId().toString(), tag, Main.server);
         BungeeUtil.sendBlocks(town);
     }
 
@@ -86,7 +86,7 @@ public class BNewTownEvent implements Listener {
         }
     }
 
-    public static void received(String name, UUID id, UUID mID, String tag, String world) {
+    public static void received(String name, UUID id, UUID mID, String tag, String server) {
         try {
             TownyDataSource towny = TownyAPI.getInstance().getDataSource();
 
@@ -94,7 +94,7 @@ public class BNewTownEvent implements Listener {
             Town town = towny.getTown(name);
             town.setUuid(id);
             town.setTag(tag);
-            town.addMetaData(new StringDataField("homeserver", world));
+            town.addMetaData(new StringDataField("homeserver", server));
             town.setWorld(towny.getWorld(Bukkit.getServer().getWorlds().get(0).getName()));
             towny.getTowns().add(town);
             CacheUtils.addCache("newtown", town.getUuid(), 60L);
