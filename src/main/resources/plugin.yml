@@ -1,0 +1,6 @@
+name: TownyBungeeBridge
+author: Travja
+version: 1.0
+main: me.travja.townybridge.Main
+description: Just a skeleton of a project
+depend: [Towny]
