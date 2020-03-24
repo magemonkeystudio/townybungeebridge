@@ -54,7 +54,7 @@ public class CmdListener implements Listener {
 
                     server = BungeeUtil.getHomeServer(obj);
 
-                    BungeeUtil.connect(event.getPlayer(), server);
+                    BungeeUtil.connect(event.getPlayer(), server, nCmd);
                     event.setCancelled(true);
                     Main.log.info("Attempting to send to other server.");
                 } catch (NotRegisteredException e) {

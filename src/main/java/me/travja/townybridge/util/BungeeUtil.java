@@ -104,10 +104,10 @@ public class BungeeUtil {
         }.runTaskTimerAsynchronously(Main.getInstance(), 20L, 20L);
     }
 
-    public static void connect(Player player, String server) {
+    public static void connect(Player player, String server, boolean nation) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
-        out.writeUTF("Spawn");
+        out.writeUTF("Spawn" + (nation ? "N" : ""));
         out.writeUTF(server);
 
         player.sendPluginMessage(Main.getInstance(), CHANNEL, out.toByteArray());

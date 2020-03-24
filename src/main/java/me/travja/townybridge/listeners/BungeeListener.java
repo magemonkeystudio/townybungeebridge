@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
+import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import me.travja.townybridge.Main;
 import me.travja.townybridge.listeners.nation.*;
@@ -31,7 +32,7 @@ public class BungeeListener implements PluginMessageListener {
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String one = in.readUTF();
-        if (one.equals("SendToSpawn")) {
+        if (one.startsWith("SendToSpawn")) {
             String pl = in.readUTF();
 
             Player p = Bukkit.getPlayer(pl);
@@ -39,9 +40,15 @@ public class BungeeListener implements PluginMessageListener {
                 TownyDataSource towny = TownyAPI.getInstance().getDataSource();
 
                 try {
-                    Town town = towny.getResident(p.getName()).getTown();
-                    p.teleport(town.getSpawn());
-                    Main.log.info("Teleported player to spawn of town on join");
+                    if(one.endsWith("Spawn")) {
+                        Town town = towny.getResident(p.getName()).getTown();
+                        p.teleport(town.getSpawn());
+                        Main.log.info("Teleported player to spawn of town on join");
+                    } else if(one.endsWith("SpawnN")) {
+                        Nation nation = towny.getResident(p.getName()).getTown().getNation();
+                        p.teleport(nation.getCapital().getSpawn());
+                        Main.log.info("Teleported player to spawn of nation on join");
+                    }
                 } catch (TownyException e) {
                     // Can't really do anything...
                 }
@@ -80,6 +87,8 @@ public class BungeeListener implements PluginMessageListener {
             UUID tID = UUID.fromString(in.readUTF());
 
             BNationInviteTownEvent.received(sname, nID, tID);
+        } else if (event.equals("NationKingChangeEvent")) {
+            //BNationKingChangeEvent.received(UUID.fromString(in.readUTF()), in.readUTF());
         } else if (event.equals("NationRemoveEnemyEvent")) {
             UUID nID = UUID.fromString(in.readUTF());
             UUID eID = UUID.fromString(in.readUTF());
@@ -150,6 +159,8 @@ public class BungeeListener implements PluginMessageListener {
 //            //TODO Implement this -- May not be needed.
         } else if (event.equals("TownInvitePlayerEvent")) {
             BTownInvitePlayerEvent.received(in.readUTF(), UUID.fromString(in.readUTF()), in.readUTF());
+        } else if (event.equals("TownMayorChangeEvent")) {
+            BTownMayorChangeEvent.received(UUID.fromString(in.readUTF()), in.readUTF());
         } else if (event.equals("TownRemoveResidentEvent")) {
             BTownRemoveResidentEvent.received(UUID.fromString(in.readUTF()), in.readUTF());
         } else if (event.equals("TownRemoveResidentRankEvent")) {

@@ -59,8 +59,8 @@ public class Main extends JavaPlugin {
             for (ClassPath.ClassInfo info : root) {
                 Class clazz = info.load();
                 if (Listener.class.isAssignableFrom(clazz)) {
+                    Main.log.info("Registering: " + info.getSimpleName());
                     pm.registerEvents((Listener) clazz.newInstance(), this);
-                    Main.log.info("Registered: " + info.getSimpleName());
                 }
             }
         } catch (InstantiationException | IllegalAccessException | IOException e) {
