@@ -5,7 +5,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownyObject;
@@ -75,6 +74,11 @@ public class BungeeUtil {
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         ByteArrayDataOutput out = queued.get(0);
 
+        if (out == null) {
+            queued.remove(0);
+            return;
+        }
+
         if (player == null)
             return;
 
@@ -87,6 +91,7 @@ public class BungeeUtil {
         if (queueRunning)
             return;
 
+        queueRunning = true;
         new BukkitRunnable() {
             public void run() {
                 if (Bukkit.getOnlinePlayers().size() == 0)
@@ -123,7 +128,6 @@ public class BungeeUtil {
             String worldName = world.getName();
         }
     }
-
 
 
     public static boolean rightServer(TownyObject town) {

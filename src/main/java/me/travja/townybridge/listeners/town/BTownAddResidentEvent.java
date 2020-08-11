@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class BTownAddResidentEvent implements Listener {
 
-    private static HashMap<UUID, UUID> cached = new HashMap<>();
+    private static HashMap<String, UUID> cached = new HashMap<>();
 
     {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
@@ -40,7 +40,7 @@ public class BTownAddResidentEvent implements Listener {
                 if (!data.getKey().startsWith("resident"))
                     continue;
 
-                cached.put(UUID.fromString(data.getValue()), town.getUuid());
+                cached.put(data.getValue(), town.getUuid());
             }
         }
     }
@@ -62,19 +62,28 @@ public class BTownAddResidentEvent implements Listener {
 
     @EventHandler
     public void join(PlayerJoinEvent event) {
-        if (!cached.containsKey(event.getPlayer().getUniqueId()))
+        if (!cached.containsKey(event.getPlayer().getUniqueId()) && !cached.containsKey(event.getPlayer().getName().toLowerCase()))
             return;
 
         Town town;
         try {
-            town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
+            if (cached.containsKey(event.getPlayer().getUniqueId()))
+                town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
+            else
+                town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getName().toLowerCase()));
+
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
             town.addResident(res);
             Main.log.info("Added " + event.getPlayer().getName() + " to " + town.getName());
 
             if (town.hasMeta() && town.getMetadata().contains("resident" + event.getPlayer().getUniqueId().toString())) //Clear out our metadata
                 town.getMetadata().remove("resident" + event.getPlayer().getUniqueId().toString());
+
+            if (town.hasMeta() && town.getMetadata().contains("residentname" + event.getPlayer().getName().toLowerCase())) //Clear out our metadata
+                town.getMetadata().remove("residentname" + event.getPlayer().getName().toLowerCase());
+
             cached.remove(event.getPlayer().getUniqueId());
+            cached.remove(event.getPlayer().getName().toLowerCase());
         } catch (TownyException e) {
             e.printStackTrace();
         }
@@ -85,14 +94,23 @@ public class BTownAddResidentEvent implements Listener {
 
         try {
             Town town = towny.getTown(id);
+            if (town == null)
+                return; // Town doesn't exist.. so we really can't do anything.
+
             Player player = Bukkit.getPlayer(resName);
             try {
                 Resident res = towny.getResident(player == null ? "---" : player.getName());
                 town.addResident(res);
                 Main.log.info("Added resident to " + town.getName());
             } catch (NotRegisteredException e) {
-                town.addMetaData(new StringDataField("resident" + player.getUniqueId().toString(), player.getUniqueId().toString()));
-                cached.put(player.getUniqueId(), town.getUuid());
+                if (player == null) {
+                    resName = resName.toLowerCase();
+                    town.addMetaData(new StringDataField("residentname" + resName, resName));
+                    cached.put(resName.toLowerCase(), town.getUuid());
+                } else {
+                    town.addMetaData(new StringDataField("resident" + player.getUniqueId().toString(), player.getUniqueId().toString()));
+                    cached.put(player.getUniqueId().toString(), town.getUuid());
+                }
                 Main.log.info("Queueing player to be added to " + town.getName());
             } catch (AlreadyRegisteredException ex) {
                 //Do nothing

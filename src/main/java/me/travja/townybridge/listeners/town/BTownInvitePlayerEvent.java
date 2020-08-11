@@ -27,7 +27,7 @@ import java.util.UUID;
 
 public class BTownInvitePlayerEvent implements Listener {
 
-    private static HashMap<UUID, UUID> cached = new HashMap<>();
+    private static HashMap<String, UUID> cached = new HashMap<>();
 
     {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
@@ -43,7 +43,7 @@ public class BTownInvitePlayerEvent implements Listener {
                 if (!data.getKey().startsWith("inviteplayer"))
                     continue;
 
-                cached.put(UUID.fromString(data.getValue()), town.getUuid());
+                cached.put(data.getValue(), town.getUuid());
             }
         }
     }
@@ -65,7 +65,7 @@ public class BTownInvitePlayerEvent implements Listener {
 
     @EventHandler
     public void join(PlayerJoinEvent event) {
-        if (!cached.containsKey(event.getPlayer().getUniqueId()))
+        if (!cached.containsKey(event.getPlayer().getName().toLowerCase()))
             return;
 
         Town town;
@@ -78,9 +78,9 @@ public class BTownInvitePlayerEvent implements Listener {
             town.newSentInvite(invite);
             InviteHandler.addInvite(invite);
 
-            if (town.hasMeta() && town.getMetadata().contains("inviteplayer" + event.getPlayer().getUniqueId().toString())) //Clear out our metadata
-                town.getMetadata().remove("inviteplayer" + event.getPlayer().getUniqueId().toString());
-            cached.remove(event.getPlayer().getUniqueId());
+            if (town.hasMeta() && town.getMetadata().contains("inviteplayer" + event.getPlayer().getName().toLowerCase())) //Clear out our metadata
+                town.getMetadata().remove("inviteplayer" + event.getPlayer().getName().toLowerCase());
+            cached.remove(event.getPlayer().getName().toLowerCase());
         } catch (TownyException | TooManyInvitesException e) {
             e.printStackTrace();
         }
@@ -93,7 +93,7 @@ public class BTownInvitePlayerEvent implements Listener {
         try {
             Town town = towny.getTown(tID);
             try {
-                Resident resident = towny.getResident(res == null ? "---" : res);
+                Resident resident = towny.getResident(player == null ? res : player.getName());
 
                 Invite invite = new PlayerJoinTownInvite(sname, town, resident);
 
@@ -101,8 +101,9 @@ public class BTownInvitePlayerEvent implements Listener {
                 town.newSentInvite(invite);
                 InviteHandler.addInvite(invite);
             } catch (NotRegisteredException e) {
-                town.addMetaData(new StringDataField("inviteplayer" + player.getUniqueId().toString(), player.getUniqueId().toString()));
-                cached.put(player.getUniqueId(), town.getUuid());
+                res = res.toLowerCase();
+                town.addMetaData(new StringDataField("inviteplayer" + res, res));
+                cached.put(res, town.getUuid());
                 Main.log.info("Queueing player to be invited to " + town.getName());
             }
         } catch (TooManyInvitesException | NotRegisteredException e) {

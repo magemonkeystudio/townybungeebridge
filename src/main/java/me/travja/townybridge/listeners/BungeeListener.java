@@ -171,8 +171,8 @@ public class BungeeListener implements PluginMessageListener {
             BTownTagChangeEvent.received(UUID.fromString(in.readUTF()), in.readUTF());
         } else if (event.equals("TownTransactionEvent")) {
             BTownTransactionEvent.received(UUID.fromString(in.readUTF()), Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
-        } else if (event.equals("TownyTransactionEvent")) {
-            BTownyTransactionEvent.received(Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
+//        } else if (event.equals("TownyTransactionEvent")) {
+//            BTownyTransactionEvent.received(Integer.parseInt(in.readUTF()), in.readUTF(), in.readUTF());
         } else if (event.equals("EventWarEndEvent")) {
             BEventWarEndEvent.received();
         } else if (event.equals("EventWarStartEvent")) {

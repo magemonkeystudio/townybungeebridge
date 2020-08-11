@@ -27,6 +27,20 @@ public class BTownMayorChangeEvent implements Listener {
             return;
         }
 
+        if (town == null)
+            return;
+
+        if (mayor == null) {
+            Main.getInstance().getLogger().info("Attempting to update Bungee with new Mayor for town " + town.getName() + " but the mayor is null.");
+            return;
+        }
+
+        Main.getInstance().getLogger().info("Event: " + event.getEventName());
+        Main.getInstance().getLogger().info("Town: " + town);
+        Main.getInstance().getLogger().info("UUID: " + town.getUuid());
+        Main.getInstance().getLogger().info("Mayor: " + mayor);
+        Main.getInstance().getLogger().info( "Name: " + mayor.getName());
+
         BungeeUtil.sendMessage(event.getEventName(), town.getUuid().toString(), mayor.getName());
     }
 

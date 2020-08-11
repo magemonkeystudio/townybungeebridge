@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class BTownRemoveResidentEvent implements Listener {
 
-    private static HashMap<UUID, UUID> cached = new HashMap<>();
+    private static HashMap<String, UUID> cached = new HashMap<>();
 
     {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
@@ -40,7 +40,7 @@ public class BTownRemoveResidentEvent implements Listener {
                 if (!data.getKey().startsWith("remresident"))
                     continue;
 
-                cached.put(UUID.fromString(data.getValue()), town.getUuid());
+                cached.put(data.getValue(), town.getUuid());
             }
         }
     }
@@ -60,19 +60,19 @@ public class BTownRemoveResidentEvent implements Listener {
 
     @EventHandler
     public void join(PlayerJoinEvent event) {
-        if (!cached.containsKey(event.getPlayer().getUniqueId()))
+        if (!cached.containsKey(event.getPlayer().getName().toLowerCase()))
             return;
 
         Town town;
         try {
-            town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
+            town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getName().toLowerCase()));
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
             town.removeResident(res);
             Main.log.info("Removed " + event.getPlayer().getName() + " from " + town.getName());
 
             if (town.hasMeta() && town.getMetadata().contains("remresident" + event.getPlayer().getUniqueId().toString())) //Clear out our metadata
                 town.getMetadata().remove("remresident" + event.getPlayer().getUniqueId().toString());
-            cached.remove(event.getPlayer().getUniqueId());
+            cached.remove(event.getPlayer().getName().toLowerCase());
         } catch (TownyException e) {
             e.printStackTrace();
         } catch (EmptyTownException e) {
@@ -85,14 +85,20 @@ public class BTownRemoveResidentEvent implements Listener {
 
         try {
             Town town = towny.getTown(id);
-            Player player = Bukkit.getPlayer(resName);
+
             try {
-                Resident res = towny.getResident(player == null ? "---" : player.getName());
+                Resident res = towny.getResident(resName);
                 town.removeResident(res);
                 Main.log.info("Removed resident from " + town.getName());
             } catch (NotRegisteredException e) {
-                town.addMetaData(new StringDataField("remresident" + player.getUniqueId().toString(), player.getUniqueId().toString()));
-                cached.put(player.getUniqueId(), town.getUuid());
+                if(town == null) {
+                    Main.log.info("Attempting to remove player from null town. Must be good.");
+                    return;
+                }
+
+                resName = resName.toLowerCase();
+                town.addMetaData(new StringDataField("remresident" + resName, resName));
+                cached.put(resName, town.getUuid());
                 Main.log.info("Queueing player to be removed from " + town.getName());
             } catch (EmptyTownException ex) {
                 //Do nothing

@@ -7,6 +7,7 @@ import com.palmergames.bukkit.towny.object.TownyObject;
 import com.palmergames.bukkit.towny.object.metadata.CustomDataField;
 import me.travja.townybridge.Main;
 import me.travja.townybridge.util.BungeeUtil;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,15 +19,17 @@ public class CmdListener implements Listener {
 
     @EventHandler
     public void cmd(PlayerCommandPreprocessEvent event) {
-        ArrayList<String> townAliases = (ArrayList<String>) Bukkit.getPluginCommand("town").getAliases();
+//        ArrayList<String> townAliases = (ArrayList<String>) Bukkit.getPluginCommand("town").getAliases();
         ArrayList<String> nationAliases = (ArrayList<String>) Bukkit.getPluginCommand("nation").getAliases();
 
         String[] args = event.getMessage().split(" ");
         String cmd = args[0].replace("/", "").toLowerCase();
 
         Main.log.info(cmd);
+        Main.log.info(Bukkit.getPluginCommand("t").toString());
+        Main.log.info("Aliases: " + StringUtils.join(Bukkit.getPluginCommand("t").getAliases(), ", "));
 
-        boolean tCmd = cmd.equals("town") || townAliases.contains(cmd);
+        boolean tCmd = cmd.equals("town") || cmd.equals("t");
         boolean nCmd = cmd.equals("nation") || nationAliases.contains(cmd);
 
         if (tCmd || nCmd) {

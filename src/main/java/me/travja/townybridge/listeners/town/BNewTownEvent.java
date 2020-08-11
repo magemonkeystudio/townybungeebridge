@@ -69,21 +69,23 @@ public class BNewTownEvent implements Listener {
         if (!cached.containsKey(event.getPlayer().getUniqueId()))
             return;
 
-        Town town;
-        try {
-            town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
-            Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
-            town.addResident(res);
-            town.setMayor(res);
-            Main.log.info("Set mayor to " + event.getPlayer().getName());
-            if (town.hasMeta() && town.getMetadata().contains("mayor")) //Clear out our metadata
-                town.getMetadata().remove("mayor");
-            cached.remove(event.getPlayer().getUniqueId());
+        Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+            Town town;
+            try {
+                town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
+                Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
+                town.addResident(res);
+                town.setMayor(res);
+                Main.log.info("Set mayor to " + event.getPlayer().getName());
+                if (town.hasMeta() && town.getMetadata().contains("mayor")) //Clear out our metadata
+                    town.getMetadata().remove("mayor");
+                cached.remove(event.getPlayer().getUniqueId());
 
-            Main.saveTowny();
-        } catch (TownyException e) {
-            e.printStackTrace();
-        }
+                Main.saveTowny();
+            } catch (TownyException e) {
+                e.printStackTrace();
+            }
+        }, 5L);
     }
 
     public static void received(String name, UUID id, UUID mID, String tag, String server) {
@@ -103,6 +105,7 @@ public class BNewTownEvent implements Listener {
                 Resident mayor = towny.getResident(player == null ? "---" : player.getName());
                 town.addResident(mayor);
                 town.setMayor(mayor);
+                Main.log.info("Set mayor to " + player.getName());
             } catch (NotRegisteredException e) {
                 //Mayor not a registered resident
                 town.addMetaData(new StringDataField("mayor", mID.toString()));

@@ -25,7 +25,7 @@ import java.util.UUID;
 
 public class BTownAddResidentRankEvent implements Listener {
 
-    private static HashMap<UUID, CacheData> cached = new HashMap<>();
+    private static HashMap<String, CacheData> cached = new HashMap<>();
 
     {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
@@ -42,10 +42,10 @@ public class BTownAddResidentRankEvent implements Listener {
                     continue;
 
                 String[] dat = data.getValue().split("~");
-                String id = dat[0];
+                String name = dat[0];
                 String rank = dat[1];
 
-                cached.put(UUID.fromString(id), new CacheData("resrank", town.getUuid(), rank));
+                cached.put(name, new CacheData("resrank", town.getUuid(), rank));
             }
         }
     }
@@ -66,13 +66,13 @@ public class BTownAddResidentRankEvent implements Listener {
 
     @EventHandler
     public void join(PlayerJoinEvent event) {
-        if (!cached.containsKey(event.getPlayer().getUniqueId()))
+        if (!cached.containsKey(event.getPlayer().getName().toLowerCase()))
             return;
 
         Town town;
         try {
-            town = TownyAPI.getInstance().getDataSource().getTown((UUID) cached.get(event.getPlayer().getUniqueId()).getObj1());
-            String rank = (String) cached.get(event.getPlayer().getUniqueId()).getObj2();
+            town = TownyAPI.getInstance().getDataSource().getTown((UUID) cached.get(event.getPlayer().getName().toLowerCase()).getObj1());
+            String rank = (String) cached.get(event.getPlayer().getName().toLowerCase()).getObj2();
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
             if (!town.hasResident(res))
                 town.addResident(res);
@@ -82,7 +82,7 @@ public class BTownAddResidentRankEvent implements Listener {
 
             if (town.hasMeta() && town.getMetadata().contains("residentrank")) //Clear out our metadata
                 town.getMetadata().remove("residentrank");
-            cached.remove(event.getPlayer().getUniqueId());
+            cached.remove(event.getPlayer().getName().toLowerCase());
         } catch (TownyException e) {
             e.printStackTrace();
         }
@@ -95,15 +95,16 @@ public class BTownAddResidentRankEvent implements Listener {
             Town town = towny.getTown(id);
             Player player = Bukkit.getPlayer(resName);
             try {
-                Resident res = towny.getResident(player == null ? "---" : player.getName());
+                Resident res = towny.getResident(player == null ? resName : player.getName());
                 if (!town.hasResident(res)) //Make sure they're in the town
                     town.addResident(res);
 
                 res.addTownRank(rank); //Add the rank
                 Main.log.info("Added resident rank, " + rank);
             } catch (NotRegisteredException e) {
-                town.addMetaData(new StringDataField("residentrank" + player.getUniqueId().toString(), player.getUniqueId().toString() + "~" + rank));
-                cached.put(player.getUniqueId(), new CacheData("resrank", town.getUuid(), rank));
+                resName = resName.toLowerCase();
+                town.addMetaData(new StringDataField("residentrank" + resName, resName + "~" + rank));
+                cached.put(resName, new CacheData("resrank", town.getUuid(), rank));
                 Main.log.info("Queueing player to be added to " + town.getName());
             } catch (AlreadyRegisteredException ex) {
                 //Do nothing :)

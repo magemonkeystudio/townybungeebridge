@@ -2,12 +2,14 @@ package me.travja.townybridge.listeners.town;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
-import com.palmergames.bukkit.towny.event.NationTransactionEvent;
 import com.palmergames.bukkit.towny.event.TownTransactionEvent;
 import com.palmergames.bukkit.towny.exceptions.EconomyException;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
-import com.palmergames.bukkit.towny.object.*;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.Transaction;
+import com.palmergames.bukkit.towny.object.TransactionType;
 import me.travja.townybridge.Main;
 import me.travja.townybridge.util.BungeeUtil;
 import org.bukkit.entity.Player;
@@ -37,6 +39,11 @@ public class BTownTransactionEvent implements Listener {
         TransactionType type = transaction.getType();
 
         trans.add(transaction);
+        Main.log.info("Sending Transaction Event:\n" +
+                "Amount: " + event.getTransaction().getAmount() + "\n" +
+                "Player: " + event.getTransaction().getPlayer().getName() + "\n" +
+                "Town: " + event.getTown().getName() + "\n" +
+                "Town ID: " + event.getTown().getUuid());
         BungeeUtil.sendMessage(event.getEventName(), town.getUuid().toString(), String.valueOf(amount), player.getName(), type.getName());
     }
 
@@ -66,11 +73,17 @@ public class BTownTransactionEvent implements Listener {
 
     public static void received(UUID id, int amount, String name, String typeStr) {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
-        TransactionType type = TransactionType.valueOf(typeStr);
+        TransactionType type = TransactionType.valueOf(typeStr.toUpperCase());
+
+        Main.log.info("Received TransactionEvent:\n" +
+                "Amount: " + amount + "\n" +
+                "Player: " + name + "\n" +
+                "Town ID: " + id);
 
         try {
             Town town = towny.getTown(id);
             Resident res = towny.getResident(name);
+
             try {
 
                 if (type == TransactionType.WITHDRAW)
