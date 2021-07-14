@@ -1,5 +1,5 @@
 name: TownyBungeeBridge
-author: Travja
+authors: [Travja, goflish]
 version: 1.0
 main: me.travja.townybridge.Main
 description: Just a skeleton of a project
