@@ -1,4 +1,4 @@
-package townybungee;
+package me.travja.townybungee;
 
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;

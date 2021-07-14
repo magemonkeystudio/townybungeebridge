@@ -1,4 +1,4 @@
-package townybungee;
+package me.travja.townybungee;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
