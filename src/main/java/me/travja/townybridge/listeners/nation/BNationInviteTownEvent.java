@@ -25,7 +25,7 @@ public class BNationInviteTownEvent implements Listener {
     @EventHandler
     public void inviteTown(NationInviteTownEvent event) {
         Invite invite = event.getInvite();
-        String sender = invite.getDirectSender();
+        String sender = invite.getDirectSender().getName();
         Nation nation = (Nation) invite.getSender();
         Town town = (Town) invite.getReceiver();
         if (CacheUtils.checkCache(CACHE_STR, nation.getUuid(), town.getUuid())) {
@@ -44,7 +44,7 @@ public class BNationInviteTownEvent implements Listener {
             Nation nation = towny.getNation(nID);
             Town town = towny.getTown(tID);
 
-            Invite invite = new TownJoinNationInvite(sname, nation, town);
+            Invite invite = new TownJoinNationInvite(null, town, nation);
 
             CacheUtils.addCache(CACHE_STR, nation.getUuid(), town.getUuid(), 60L);
             nation.newSentInvite(invite);

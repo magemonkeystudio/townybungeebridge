@@ -17,6 +17,7 @@ import me.travja.townybridge.Main;
 import me.travja.townybridge.util.BungeeUtil;
 import me.travja.townybridge.util.CacheUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,7 +52,7 @@ public class BTownInvitePlayerEvent implements Listener {
     @EventHandler
     public void inviteTown(TownInvitePlayerEvent event) {
         Invite invite = event.getInvite();
-        String sender = invite.getDirectSender();
+        String sender = invite.getDirectSender().getName();
         Town town = (Town) invite.getSender();
         Resident res = (Resident) invite.getReceiver();
         if (CacheUtils.checkCache("inviteplayer", town.getUuid(), res.getName())) {
@@ -72,7 +73,7 @@ public class BTownInvitePlayerEvent implements Listener {
         try {
             town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
-            Invite invite = new PlayerJoinTownInvite(town.getName(), town, res);
+            Invite invite = new PlayerJoinTownInvite(null, res, town);
 
             CacheUtils.addCache("inviteplayer", town.getUuid(), res.getName(), 60L);
             town.newSentInvite(invite);
@@ -95,7 +96,7 @@ public class BTownInvitePlayerEvent implements Listener {
             try {
                 Resident resident = towny.getResident(player == null ? res : player.getName());
 
-                Invite invite = new PlayerJoinTownInvite(sname, town, resident);
+                Invite invite = new PlayerJoinTownInvite(null, resident, town);
 
                 CacheUtils.addCache("inviteplayer", town.getUuid(), resident.getName(), 60L);
                 town.newSentInvite(invite);

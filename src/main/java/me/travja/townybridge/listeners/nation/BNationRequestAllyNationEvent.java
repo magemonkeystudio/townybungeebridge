@@ -29,7 +29,7 @@ public class BNationRequestAllyNationEvent implements Listener {
             CacheUtils.clearCache("requestally", nation.getUuid());
         }
 
-        BungeeUtil.sendMessage(event.getEventName(), invite.getDirectSender(), nation.getUuid().toString(), ally.getUuid().toString());
+        BungeeUtil.sendMessage(event.getEventName(), invite.getDirectSender().getName(), nation.getUuid().toString(), ally.getUuid().toString());
     }
 
     public static void received(String sname, UUID nID, UUID aID) {
@@ -39,7 +39,8 @@ public class BNationRequestAllyNationEvent implements Listener {
             Nation nation = towny.getNation(nID);
             Nation ally = towny.getNation(aID);
 
-            Invite invite = new NationAllyNationInvite(sname, nation, ally);
+            //Potential issues getting player from name if they haven't joined the server yet...
+            Invite invite = new NationAllyNationInvite(null, ally, nation);
 
             CacheUtils.addCache("requestally", nation.getUuid(), ally.getUuid(), 60L);
             nation.newSentInvite(invite);

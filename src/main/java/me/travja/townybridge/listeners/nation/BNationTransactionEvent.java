@@ -3,7 +3,6 @@ package me.travja.townybridge.listeners.nation;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
 import com.palmergames.bukkit.towny.event.NationTransactionEvent;
-import com.palmergames.bukkit.towny.exceptions.EconomyException;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Nation;
@@ -22,25 +21,6 @@ import java.util.UUID;
 public class BNationTransactionEvent implements Listener {
 
     private static ArrayList<Transaction> trans = new ArrayList<>();
-
-    @EventHandler
-    public void transact(NationTransactionEvent event) {
-        Nation nation = event.getNation();
-        Transaction transaction = event.getTransaction();
-
-        int index = cached(transaction);
-        if (index != -1) {
-            trans.remove(index);
-            return;
-        }
-
-        int amount = transaction.getAmount();
-        Player player = transaction.getPlayer();
-        TransactionType type = transaction.getType();
-
-        trans.add(transaction);
-        BungeeUtil.sendMessage(event.getEventName(), nation.getUuid().toString(), String.valueOf(amount), player.getName(), type.getName());
-    }
 
     public static int cached(Transaction tran) {
         for (int i = 0; i < trans.size(); i++) {
@@ -65,7 +45,6 @@ public class BNationTransactionEvent implements Listener {
         return true;
     }
 
-
     public static void received(UUID id, int amount, String name, String typeStr) {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
         TransactionType type = TransactionType.valueOf(typeStr);
@@ -80,7 +59,7 @@ public class BNationTransactionEvent implements Listener {
                 else if (type == TransactionType.DEPOSIT)
                     res.getAccount().payTo(amount, nation, "Nation Deposit");
 
-            } catch (EconomyException | TownyException e) {
+            } catch (TownyException e) {
                 Main.log.info("Couldn't transfer funds.");
                 e.printStackTrace();
             }
@@ -88,6 +67,25 @@ public class BNationTransactionEvent implements Listener {
             Main.log.info("Attempting to perform a transaction for a nation, but it wasn't registered.");
         }
 
+    }
+
+    @EventHandler
+    public void transact(NationTransactionEvent event) {
+        Nation nation = event.getNation();
+        Transaction transaction = event.getTransaction();
+
+        int index = cached(transaction);
+        if (index != -1) {
+            trans.remove(index);
+            return;
+        }
+
+        double amount = transaction.getAmount();
+        Player player = transaction.getPlayer();
+        TransactionType type = transaction.getType();
+
+        trans.add(transaction);
+        BungeeUtil.sendMessage(event.getEventName(), nation.getUuid().toString(), String.valueOf(amount), player.getName(), type.getName());
     }
 
 }

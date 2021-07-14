@@ -3,7 +3,6 @@ package me.travja.townybridge.listeners.town;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
 import com.palmergames.bukkit.towny.event.TownTransactionEvent;
-import com.palmergames.bukkit.towny.exceptions.EconomyException;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -22,30 +21,6 @@ import java.util.UUID;
 public class BTownTransactionEvent implements Listener {
 
     private static ArrayList<Transaction> trans = new ArrayList<>();
-
-    @EventHandler
-    public void transact(TownTransactionEvent event) {
-        Town town = event.getTown();
-        Transaction transaction = event.getTransaction();
-
-        int index = cached(transaction);
-        if (index != -1) {
-            trans.remove(index);
-            return;
-        }
-
-        int amount = transaction.getAmount();
-        Player player = transaction.getPlayer();
-        TransactionType type = transaction.getType();
-
-        trans.add(transaction);
-        Main.log.info("Sending Transaction Event:\n" +
-                "Amount: " + event.getTransaction().getAmount() + "\n" +
-                "Player: " + event.getTransaction().getPlayer().getName() + "\n" +
-                "Town: " + event.getTown().getName() + "\n" +
-                "Town ID: " + event.getTown().getUuid());
-        BungeeUtil.sendMessage(event.getEventName(), town.getUuid().toString(), String.valueOf(amount), player.getName(), type.getName());
-    }
 
     public static int cached(Transaction tran) {
         for (int i = 0; i < trans.size(); i++) {
@@ -70,7 +45,6 @@ public class BTownTransactionEvent implements Listener {
         return true;
     }
 
-
     public static void received(UUID id, int amount, String name, String typeStr) {
         TownyDataSource towny = TownyAPI.getInstance().getDataSource();
         TransactionType type = TransactionType.valueOf(typeStr.toUpperCase());
@@ -91,7 +65,7 @@ public class BTownTransactionEvent implements Listener {
                 else if (type == TransactionType.DEPOSIT)
                     res.getAccount().payTo(amount, town, "Town Deposit");
 
-            } catch (EconomyException | TownyException e) {
+            } catch (TownyException e) {
                 Main.log.info("Couldn't transfer funds.");
                 e.printStackTrace();
             }
@@ -99,6 +73,30 @@ public class BTownTransactionEvent implements Listener {
             Main.log.info("Attempting to perform a transaction for a nation, but it wasn't registered.");
         }
 
+    }
+
+    @EventHandler
+    public void transact(TownTransactionEvent event) {
+        Town town = event.getTown();
+        Transaction transaction = event.getTransaction();
+
+        int index = cached(transaction);
+        if (index != -1) {
+            trans.remove(index);
+            return;
+        }
+
+        double amount = transaction.getAmount();
+        Player player = transaction.getPlayer();
+        TransactionType type = transaction.getType();
+
+        trans.add(transaction);
+        Main.log.info("Sending Transaction Event:\n" +
+                "Amount: " + event.getTransaction().getAmount() + "\n" +
+                "Player: " + event.getTransaction().getPlayer().getName() + "\n" +
+                "Town: " + event.getTown().getName() + "\n" +
+                "Town ID: " + event.getTown().getUuid());
+        BungeeUtil.sendMessage(event.getEventName(), town.getUuid().toString(), String.valueOf(amount), player.getName(), type.getName());
     }
 
 }

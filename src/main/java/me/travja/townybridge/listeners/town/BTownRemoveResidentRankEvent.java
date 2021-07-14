@@ -75,7 +75,7 @@ public class BTownRemoveResidentRankEvent implements Listener {
             String rank = (String) cached.get(event.getPlayer().getUniqueId()).getObj2();
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
             if (!town.hasResident(res))
-                town.addResident(res);
+                res.setTown(town);
 
             res.removeTownRank(rank);
             Main.log.info("Set " + event.getPlayer().getName() + " rank to " + town.getName());
@@ -97,7 +97,7 @@ public class BTownRemoveResidentRankEvent implements Listener {
             try {
                 Resident res = towny.getResident(player == null ? "---" : player.getName());
                 if (!town.hasResident(res)) //Make sure they're in the town
-                    town.addResident(res);
+                    res.setTown(town);
 
                 res.removeTownRank(rank); //Add the rank
                 Main.log.info("Removed resident rank, " + rank);

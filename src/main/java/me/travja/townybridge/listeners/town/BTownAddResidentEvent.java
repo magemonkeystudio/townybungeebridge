@@ -73,7 +73,7 @@ public class BTownAddResidentEvent implements Listener {
                 town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getName().toLowerCase()));
 
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
-            town.addResident(res);
+            res.setTown(town);
             Main.log.info("Added " + event.getPlayer().getName() + " to " + town.getName());
 
             if (town.hasMeta() && town.getMetadata().contains("resident" + event.getPlayer().getUniqueId().toString())) //Clear out our metadata
@@ -100,7 +100,7 @@ public class BTownAddResidentEvent implements Listener {
             Player player = Bukkit.getPlayer(resName);
             try {
                 Resident res = towny.getResident(player == null ? "---" : player.getName());
-                town.addResident(res);
+                res.setTown(town);
                 Main.log.info("Added resident to " + town.getName());
             } catch (NotRegisteredException e) {
                 if (player == null) {

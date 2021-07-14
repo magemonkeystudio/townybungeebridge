@@ -45,38 +45,6 @@ public class BNewNationEvent implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void create(NewNationEvent event) {
-        Nation nation = event.getNation();
-        String name = nation.getName();
-        UUID id = nation.getUuid();
-        Resident mayor = nation.getKing();
-        String tag = nation.getTag();
-        Town capital = nation.getCapital();
-
-        BungeeUtil.sendMessage(event.getEventName(), name, id.toString(), Bukkit.getPlayer(mayor.getName()).getUniqueId().toString(), tag, capital.getUuid().toString(), Main.server);
-    }
-
-
-    @EventHandler
-    public void join(PlayerJoinEvent event) {
-        if (!cached.containsKey(event.getPlayer().getUniqueId()))
-            return;
-
-        Nation nation;
-        try {
-            nation = TownyAPI.getInstance().getDataSource().getNation(cached.get(event.getPlayer().getUniqueId()));
-            Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
-            nation.getCapital().addResident(res);
-            nation.setKing(res);
-
-            Main.saveTowny();
-            Main.log.info("Set king to " + event.getPlayer().getName());
-        } catch (TownyException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void received(String name, UUID id, UUID mID, String tag, UUID capID, String server) {
         try {
             TownyDataSource towny = TownyAPI.getInstance().getDataSource();
@@ -91,7 +59,7 @@ public class BNewNationEvent implements Listener {
             Player player = Bukkit.getPlayer(mID);
             try {
                 Resident mayor = towny.getResident(player == null ? "---" : player.getName());
-                nation.getCapital().addResident(mayor);
+                mayor.setTown(nation.getCapital());
                 nation.setKing(mayor);
             } catch (NotRegisteredException e) {
                 //Mayor not a registered resident
@@ -102,6 +70,37 @@ public class BNewNationEvent implements Listener {
 
             Main.saveTowny();
             Main.log.info("BungeeBridge created new nation called '" + name + "'");
+        } catch (TownyException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void create(NewNationEvent event) {
+        Nation nation = event.getNation();
+        String name = nation.getName();
+        UUID id = nation.getUuid();
+        Resident mayor = nation.getKing();
+        String tag = nation.getTag();
+        Town capital = nation.getCapital();
+
+        BungeeUtil.sendMessage(event.getEventName(), name, id.toString(), Bukkit.getPlayer(mayor.getName()).getUniqueId().toString(), tag, capital.getUuid().toString(), Main.server);
+    }
+
+    @EventHandler
+    public void join(PlayerJoinEvent event) {
+        if (!cached.containsKey(event.getPlayer().getUniqueId()))
+            return;
+
+        Nation nation;
+        try {
+            nation = TownyAPI.getInstance().getDataSource().getNation(cached.get(event.getPlayer().getUniqueId()));
+            Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
+            res.setTown(nation.getCapital());
+            nation.setKing(res);
+
+            Main.saveTowny();
+            Main.log.info("Set king to " + event.getPlayer().getName());
         } catch (TownyException e) {
             e.printStackTrace();
         }

@@ -17,6 +17,26 @@ import java.util.UUID;
 
 public class BTownMayorChangeEvent implements Listener {
 
+    public static void received(UUID id, String mName) {
+        TownyDataSource towny = TownyAPI.getInstance().getDataSource();
+
+        try {
+            Town town = towny.getTown(id);
+            Resident mayor = towny.getResident(mName);
+
+            CacheUtils.addCache("newmayor", town.getUuid(), mayor.getName(), 60L);
+            if (!town.hasResident(mayor))
+                mayor.setTown(town);
+            town.setMayor(mayor);
+            Main.log.info("Set new mayor to " + mName);
+        } catch (NotRegisteredException e) {
+            Main.log.info("Attempted to assign a mayor, but the town and/or resident doesn't exist!");
+        } catch (TownyException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @EventHandler
     public void mayorChange(TownMayorChangeEvent event) {
         Town town = event.getTown();
@@ -39,30 +59,9 @@ public class BTownMayorChangeEvent implements Listener {
         Main.getInstance().getLogger().info("Town: " + town);
         Main.getInstance().getLogger().info("UUID: " + town.getUuid());
         Main.getInstance().getLogger().info("Mayor: " + mayor);
-        Main.getInstance().getLogger().info( "Name: " + mayor.getName());
+        Main.getInstance().getLogger().info("Name: " + mayor.getName());
 
         BungeeUtil.sendMessage(event.getEventName(), town.getUuid().toString(), mayor.getName());
-    }
-
-
-    public static void received(UUID id, String mName) {
-        TownyDataSource towny = TownyAPI.getInstance().getDataSource();
-
-        try {
-            Town town = towny.getTown(id);
-            Resident mayor = towny.getResident(mName);
-
-            CacheUtils.addCache("newmayor", town.getUuid(), mayor.getName(), 60L);
-            if (!town.hasResident(mayor))
-                town.addResident(mayor);
-            town.setMayor(mayor);
-            Main.log.info("Set new mayor to " + mName);
-        } catch (NotRegisteredException e) {
-            Main.log.info("Attempted to assign a mayor, but the town and/or resident doesn't exist!");
-        } catch (TownyException e) {
-            e.printStackTrace();
-        }
-
     }
 
 }

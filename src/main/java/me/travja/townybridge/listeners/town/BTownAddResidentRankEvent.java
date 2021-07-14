@@ -75,7 +75,7 @@ public class BTownAddResidentRankEvent implements Listener {
             String rank = (String) cached.get(event.getPlayer().getName().toLowerCase()).getObj2();
             Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
             if (!town.hasResident(res))
-                town.addResident(res);
+                res.setTown(town);
 
             res.addTownRank(rank);
             Main.log.info("Set " + event.getPlayer().getName() + " rank to " + town.getName());
@@ -97,7 +97,7 @@ public class BTownAddResidentRankEvent implements Listener {
             try {
                 Resident res = towny.getResident(player == null ? resName : player.getName());
                 if (!town.hasResident(res)) //Make sure they're in the town
-                    town.addResident(res);
+                    res.setTown(town);
 
                 res.addTownRank(rank); //Add the rank
                 Main.log.info("Added resident rank, " + rank);

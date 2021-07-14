@@ -74,7 +74,7 @@ public class BNewTownEvent implements Listener {
             try {
                 town = TownyAPI.getInstance().getDataSource().getTown(cached.get(event.getPlayer().getUniqueId()));
                 Resident res = TownyAPI.getInstance().getDataSource().getResident(event.getPlayer().getName());
-                town.addResident(res);
+                res.setTown(town);
                 town.setMayor(res);
                 Main.log.info("Set mayor to " + event.getPlayer().getName());
                 if (town.hasMeta() && town.getMetadata().contains("mayor")) //Clear out our metadata
@@ -94,7 +94,7 @@ public class BNewTownEvent implements Listener {
 
             towny.newTown(name); //Create the new town
             Town town = towny.getTown(name);
-            town.setUuid(id);
+            town.setUUID(id);
             town.setTag(tag);
             town.addMetaData(new StringDataField("homeserver", server));
             town.setWorld(towny.getWorld(Bukkit.getServer().getWorlds().get(0).getName()));
@@ -103,7 +103,7 @@ public class BNewTownEvent implements Listener {
             Player player = Bukkit.getPlayer(mID);
             try {
                 Resident mayor = towny.getResident(player == null ? "---" : player.getName());
-                town.addResident(mayor);
+                mayor.setTown(town);
                 town.setMayor(mayor);
                 Main.log.info("Set mayor to " + player.getName());
             } catch (NotRegisteredException e) {
